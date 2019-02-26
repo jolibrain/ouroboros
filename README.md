@@ -38,6 +38,14 @@ docker run -d --name ouroboros \
   pyouroboros/ouroboros
 ```
 
+> Example run with file output:
+
+```bash
+docker run -v /var/run/docker.sock:/var/run/docker.sock \
+       jolibrain/ouroboros --volume=/home/you/here/:/opt/ \
+       --dry-run --file /opt/version.json
+```
+
 > This is image is compatible for amd64, arm32, and arm64 CPU architectures
 
 or via `docker-compose`:
