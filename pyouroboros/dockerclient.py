@@ -202,12 +202,13 @@ class Container(object):
                 else:
                     continue
             elif not self.config.labels_only:
+                container_name = container.image.attrs['RepoTags'][0].replace(':latest','')
                 if self.config.monitor:
-                    if container.name in self.config.monitor and container.name not in self.config.ignore:
+                    if container_name in self.config.monitor and container_name not in self.config.ignore:
                         monitored_containers.append(container)
-                elif container.name not in self.config.ignore:
+                elif container_name not in self.config.ignore:
                     monitored_containers.append(container)
-
+                                
         self.data_manager.monitored_containers[self.socket] = len(monitored_containers)
         self.data_manager.set(self.socket)
 
