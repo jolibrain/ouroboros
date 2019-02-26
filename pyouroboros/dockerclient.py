@@ -6,6 +6,7 @@ from docker.errors import DockerException, APIError, NotFound
 
 from pyouroboros.helpers import set_properties
 
+import json
 
 class Docker(object):
     def __init__(self, socket, config, data_manager, notification_manager):
@@ -280,12 +281,28 @@ class Container(object):
         for container in depends_on_containers + hard_depends_on_containers:
             self.stop(container)
 
+        # structure here to store relevant info to be written down to file
+        container_versions = {'local':[],'remote':[]}
         for container, current_image, latest_image in updateable:
             if self.config.dry_run:
                 # Ugly hack for repo digest
                 repo_digest_id = current_image.attrs['RepoDigests'][0].split('@')[1]
                 if repo_digest_id != latest_image.id:
-                    self.logger.info('dry run : %s would be updated', container.name)
+                    #self.logger.disabled=True
+                    #print(current_image.attrs,flush=True)
+                    #print('------------------------------------')
+                    #print(latest_image.attrs,flush=True)
+                    #self.logger.disabled=False
+                    #self.logger.info('sha256=%s / latest_image=%s',repo_digest_id,latest_image.id)
+                    self.logger.info('dry run : %s / %s would be updated', current_image.attrs['RepoTags'][0],container.name)
+
+                    image_name = current_image.attrs['RepoTags'][0].replace(':latest','')
+                    container_name = image_name.split('/')[1]
+                    local_sha = repo_digest_id
+                    remote_sha = latest_image.id
+                    
+                    container_versions['local'].append({'name':container_name,'image':image_name,'version':local_sha})
+                    container_versions['remote'].append({'name':container_name,'image':image_name,'version':remote_sha})
                 continue
 
             if container.name in ['ouroboros', 'ouroboros-updated']:
@@ -313,6 +330,14 @@ class Container(object):
             self.data_manager.add(label=container.name, socket=self.socket)
             self.data_manager.add(label='all', socket=self.socket)
 
+        if self.config.dry_run:
+            self.logger.disabled=True
+            print('container_versions=',container_versions)
+            self.logger.disabled=False
+            if self.config.file_path:
+                with open(self.config.file_path,'w+') as cf:
+                    json.dump(container_versions,cf)
+            
         for container in depends_on_containers:
             # Reload container to ensure it isn't referencing the old image
             container.reload()
@@ -436,7 +461,8 @@ class Service(object):
             if self.config.dry_run:
                 # Ugly hack for repo digest
                 if sha256 != latest_image.id:
-                    self.logger.info('dry run : %s would be updated', service.name)
+                    self.logger.info('sha256=%s / latest_image=%s',sha256,latest_image)
+                    #self.logger.info('dry run : %s would be updated', service.name)
                 continue
 
             if sha256 != latest_image.id:

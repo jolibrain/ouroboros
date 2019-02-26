@@ -58,7 +58,7 @@ def main():
 
     core_group.add_argument('-A', '--dry-run', default=Config.dry_run, action='store_true', dest='DRY_RUN',
                             help='Run without making changes. Best used with run-once')
-
+    
     core_group.add_argument('-N', '--notifiers', nargs='+', default=Config.notifiers, dest='NOTIFIERS',
                             help='Apprise formatted notifiers\n'
                                  'EXAMPLE: -N discord://1234123412341234/jasdfasdfasdfasddfasdf '
@@ -131,6 +131,9 @@ def main():
     data_group.add_argument('-V', '--influx-verify-ssl', default=Config.influx_verify_ssl, dest='INFLUX_VERIFY_SSL',
                             action='store_true', help='Verify SSL certificate when connecting to influxdb')
 
+    data_group.add_argument('-F', '--file', default='version.json', dest='FILE_PATH',
+                            help='output json file to store local and remote versions of containers')
+    
     args = parser.parse_args()
 
     if environ.get('LOG_LEVEL'):

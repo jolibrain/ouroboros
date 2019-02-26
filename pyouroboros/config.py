@@ -8,7 +8,7 @@ class Config(object):
                'PROMETHEUS_PORT', 'NOTIFIERS', 'REPO_USER', 'REPO_PASS', 'CLEANUP', 'RUN_ONCE', 'CRON',
                'INFLUX_URL', 'INFLUX_PORT', 'INFLUX_USERNAME', 'INFLUX_PASSWORD', 'INFLUX_DATABASE', 'INFLUX_SSL',
                'INFLUX_VERIFY_SSL', 'DATA_EXPORT', 'SELF_UPDATE', 'LABEL_ENABLE', 'DOCKER_TLS', 'LABELS_ONLY',
-               'DRY_RUN', 'HOSTNAME', 'DOCKER_TLS_VERIFY', 'SWARM']
+               'DRY_RUN', 'HOSTNAME', 'DOCKER_TLS_VERIFY', 'SWARM', 'FILE_PATH']
 
     hostname = environ.get('HOSTNAME')
     interval = 300
@@ -17,6 +17,7 @@ class Config(object):
     docker_tls = False
     docker_tls_verify = True
     swarm = False
+    file_path = 'version.json'
     monitor = []
     ignore = []
     data_export = None
@@ -137,9 +138,9 @@ class Config(object):
         if self.data_export == 'prometheus' and self.self_update:
             self.logger.warning("If you bind a port to ouroboros, it will be lost when it updates itself.")
 
-        if self.dry_run and not self.run_once:
-            self.logger.warning("Dry run is designed to be ran with run once. Setting for you.")
-            self.run_once = True
+        #if self.dry_run and not self.run_once:
+            #self.logger.warning("Dry run is designed to be ran with run once. Setting for you.")
+            #self.run_once = True
 
         # Remove default config that is not used for cleaner logs
         if self.data_export != 'prometheus':
