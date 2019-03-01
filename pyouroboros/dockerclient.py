@@ -298,7 +298,10 @@ class Container(object):
                     self.logger.info('dry run : %s / %s would be updated', current_image.attrs['RepoTags'][0],container.name)
 
                     image_name = current_image.attrs['RepoTags'][0].replace(':latest','')
-                    container_name = image_name.split('/')[1]
+                    if '/' in image_name:
+                        container_name = image_name.split('/')[1]
+                    else:
+                        container_name = image_name
                     local_sha = repo_digest_id
                     remote_sha = latest_image.id
                     
